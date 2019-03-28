@@ -8,7 +8,9 @@ class PostContainer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            comment: ''
+            comment: '',
+            commenting: false,
+            liked: localStorage.getItem(this.props.post.timestamp) === null ? false : (localStorage.getItem(this.props.post.timestamp) === 'true' ? true : false)
         }
     }
 
@@ -20,16 +22,14 @@ class PostContainer extends React.Component {
         e.preventDefault();
 
         const newComment = {
-            username: 'random',
+            username: JSON.parse(localStorage.getItem('user')).username,
             text: this.state.comment,
             timestamp: moment().format('MMMM Do YYYY, h:mm:ss a')
         }
 
         this.props.submitComment(this.props.post.timestamp, newComment);
 
-        this.setState({
-            comment: ''
-        })
+        this.setState({ comment: '' })
     }
 
     render() {
@@ -49,20 +49,30 @@ class PostContainer extends React.Component {
                 />
                 <section className='cAndL'>
                     <i
-                        onClick={() => this.props.liker(this.props.post.timestamp)}
-                        className={this.props.liked === false ? 'far fa-heart like' : 'fas fa-heart like'} />
+                        onClick={() => this.setState({ liked: !this.state.liked }) & localStorage.setItem(this.props.post.timestamp, !this.state.liked)}
+                        className={this.state.liked === false ? 'far fa-heart like' : 'fas fa-heart like'}
+                    />
 
-                    <i className='far fa-comment comment' />
+                    <i
+                        onClick={() => this.setState({ commenting: !this.state.commenting })}
+                        className={this.state.commenting === false ? 'far fa-comment like' : 'fas fa-comment like'}
+                    />
 
-                    <span className='likes'>{this.props.post.likes} likes</span>
+                    <span className='likes'>{this.state.liked === false ? this.props.post.likes : this.props.post.likes + 1} likes</span>
                 </section>
 
-                <div className='comments'>{this.props.post.comments.map((comment, id) => (
-                    <CommentSection
-                        comment={comment}
-                        key={id}
-                    />
-                ))}
+                <div
+                    className='comments'
+                    style={{ display: this.state.commenting === false ? 'none' : 'block' }}
+                >
+                    {this.props.post.comments.map((comment, id) => (
+                        <CommentSection
+                            comment={comment}
+                            postIndex={this.props.index}
+                            key={id}
+                            deleteComment={this.props.deleteComment}
+                        />
+                    ))}
                     <div className='addComment'>
                         <form onSubmit={this.submitComment}>
                             <input

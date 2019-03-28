@@ -9,10 +9,12 @@ const CommentSection = props => {
             <p className='commentContent'>
                 <span className='commentUsername'>{props.comment.username}</span>
                 {props.comment.text}
+                <sup onClick={() => props.deleteComment(props.postIndex, props.comment.text)}>X</sup>
             </p>
             <p
                 className='time'
-                style={{ display: props.comment.timestamp ? 'block' : 'none' }}>
+                style={{ display: props.comment.timestamp ? 'block' : 'none' }}
+            >
                 {moment(props.comment.timestamp, 'MMMM Do YYYY, h:mm:ss a').fromNow()}
             </p>
         </>
